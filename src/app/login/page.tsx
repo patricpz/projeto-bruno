@@ -4,7 +4,8 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter } from 'next/navigation'; // Importa o hook useRouter
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Form,
   FormControl,
@@ -31,14 +32,14 @@ const LoginPage = () => {
     }
   });
 
-  const router = useRouter(); // Inicializa o hook useRouter
+  const router = useRouter();
 
   const onSubmit = (data) => {
     console.log(data);
     // Lógica de login aqui
 
     // Após o login bem-sucedido, redirecione para outra página
-    router.push('/teste'); // Substitua '/pagina-destino' pelo caminho para o qual deseja redirecionar
+    router.push('/teste'); // Substitua '/teste' pelo caminho para o qual deseja redirecionar
   };
 
   return (
@@ -80,6 +81,9 @@ const LoginPage = () => {
             </Button>
           </form>
         </Form>
+        <p className="text-center text-gray-800">
+          Não possui uma conta? <Link href="/register" className="text-indigo-600 hover:text-indigo-800">Registre-se</Link>
+        </p>
       </div>
     </div>
   );
