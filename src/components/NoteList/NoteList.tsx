@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DeleteModal from '../DeleteModal/DeleteModal';
 
 const NoteList = ({ notes, openNote, deleteNote }) => {
