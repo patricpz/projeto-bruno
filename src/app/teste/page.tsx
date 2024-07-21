@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState,  } from 'react';
+import React, { useEffect, useState } from 'react';
 import NoteForm from '@/components/NoteForm/NoteForm';
 import NoteList from '@/components/NoteList/NoteList';
 import NoteModal from '@/components/NoteModal/NoteModal';
@@ -38,6 +38,10 @@ const HomePage = () => {
     setNotes(notes.filter((_, i) => i !== index));
   };
 
+  const saveNote = (editedNote) => {
+    setNotes(notes.map(note => note === selectedNote ? { ...selectedNote, ...editedNote } : note));
+  };
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center p-6">
       <h1 className="text-3xl font-bold mb-6">Sistema de Notas</h1>
@@ -47,7 +51,7 @@ const HomePage = () => {
       <div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-md">
         {isLoading ? <SkeletonNoteList /> : <NoteList notes={notes} openNote={openNote} deleteNote={deleteNote} />}
       </div>
-      <NoteModal note={selectedNote} isOpen={isModalOpen} close={closeNote} />
+      <NoteModal note={selectedNote} isOpen={isModalOpen} close={closeNote} onSave={saveNote} />
     </div>
   );
 };
