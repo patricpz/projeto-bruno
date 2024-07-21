@@ -1,88 +1,102 @@
 "use client";
 
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useRouter } from 'next/navigation'; // Importa o hook useRouter
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState,  } from 'react';
+import NoteForm from '@/components/NoteForm/NoteForm';
+import NoteList from '@/components/NoteList/NoteList';
+import NoteModal from '@/components/NoteModal/NoteModal';
+import SkeletonNoteForm from '@/components/SkeletonForm/SkeletonForm';
+import SkeletonNoteList from '@/components/SkeletonNoteList/SkeletonNoteList';
+import { create, listAll, listDetail } from '@/requests/notes';
+import { toast } from '@/components/ui/use-toast';
 
-const schema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres')
-});
+const HomePage = () => {
+  const [notes, setNotes] = useState([]);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-const LoginPage = () => {
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      email: '',
-      password: ''
+  useEffect( () => {
+    // Simulate a network request
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    getNotes()
+
+  }, []);
+
+  const getNotes = async () =>{ 
+    const notes = await listAll()
+    console.log('notes', notes)
+
+if(notes.data) {
+  // @ts-ignore
+  setNotes(notes.data)
+
+}
+}
+  const addNote = async (note) => {
+const {title, content} = note
+
+    console.log('title', title)
+    console.log('content', {title: title, content: content})
+
+    try {
+
+      const createNote = await create({title, content})
+      console.log('create note', createNote)
+      if (createNote.error) {
+        toast({
+          title: "erro ao adicionar tarefa",
+          description: createNote.error
+      });
+      } else {
+        toast({
+          title: "Tarefa Adicionada com sucesso",
+          description: title,
+      });
+      }
+    } catch(error) {
+      console.error('error create note', error)
+      toast({
+        title: "erro ao adicionar tarefa",
+    });
+
     }
-  });
 
-  const router = useRouter(); // Inicializa o hook useRouter
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // Lógica de login aqui
+    setNotes([...notes, note]);
+  };
+console.log(  'notes state', notes)
+  const openNote =  async(note) => {
+    const noteDetail = await listDetail(note.id)
+    console.log('noteDetail', noteDetail)
+    // @ts-ignore
+    setSelectedNote(noteDetail.data);
+    setIsModalOpen(true);
+  };
 
-    // Após o login bem-sucedido, redirecione para outra página
-    router.push('/teste'); // Substitua '/pagina-destino' pelo caminho para o qual deseja redirecionar
+  const closeNote = () => {
+    setSelectedNote(null);
+    setIsModalOpen(false);
+  };
+
+  const deleteNote = (index) => {
+    setNotes(notes.filter((_, i) => i !== index));
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-black to-purple-600">
-      <div className="w-full max-w-md p-9 space-y-6 bg-white bg-opacity-70 backdrop-blur-lg rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-gray-800">Login</h2>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Digite seu email" className="w-full p-3 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                  </FormControl>
-                  <FormDescription />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="password" placeholder="Digite sua senha" className="w-full p-3 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                  </FormControl>
-                  <FormDescription />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full py-3 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              Entrar
-            </Button>
-          </form>
-        </Form>
+    <div className="min-h-screen bg-black text-white flex flex-col items-center p-6">
+      <h1 className="text-3xl font-bold mb-6">Sistema de Notas</h1>
+      <div className="w-full max-w-4xl bg-gray-800 text-black p-6 rounded-lg shadow-md mb-6">
+        {isLoading ? <SkeletonNoteForm /> : <NoteForm addNote={addNote} />}
       </div>
+      <div className="w-full max-w-4xl bg-gray-800 p-6 rounded-lg shadow-md">
+        {isLoading ? <SkeletonNoteList /> : <NoteList notes={notes} openNote={openNote} deleteNote={deleteNote} />}
+      </div>
+      <NoteModal note={selectedNote} isOpen={isModalOpen} close={closeNote} />
     </div>
   );
 };
 
-export default LoginPage;
+export default HomePage;

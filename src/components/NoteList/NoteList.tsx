@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import DeleteModal from '../DeleteModal/DeleteModal';
+import { create, remove } from '@/requests/notes';
 
 const NoteList = ({ notes, openNote, deleteNote }) => {
   const [showModal, setShowModal] = useState(false);
-  const [selectedNoteIndex, setSelectedNoteIndex] = useState(null);
+  const [selectedNoteIndex, setSelectedNoteIndex] = useState('');
 
-  const handleDeleteClick = (index) => {
-    setSelectedNoteIndex(index);
+  const handleDeleteClick = (id) => {
+    setSelectedNoteIndex(id);
     setShowModal(true);
   };
 
@@ -17,8 +18,9 @@ const NoteList = ({ notes, openNote, deleteNote }) => {
     setSelectedNoteIndex(null);
   };
 
-  const handleConfirmDelete = () => {
-    deleteNote(selectedNoteIndex);
+  const handleConfirmDelete = async () => {
+    if (selectedNoteIndex) 
+    await remove(selectedNoteIndex);
     handleCloseModal();
   };
 
@@ -27,7 +29,7 @@ const NoteList = ({ notes, openNote, deleteNote }) => {
       {notes.map((note, index) => (
         <div key={index} className="p-4 border border-gray-700 rounded-md shadow-sm bg-gray-800">
           <h3 className="text-lg font-medium text-white">{note.title}</h3>
-          <p className="text-gray-300">{note.description}</p>
+          <p className="text-gray-300">{note.content}</p>
           <div className="mt-2 flex space-x-2">
             <button 
               onClick={() => openNote(note)} 
@@ -36,7 +38,7 @@ const NoteList = ({ notes, openNote, deleteNote }) => {
               Ver
             </button>
             <button 
-              onClick={() => handleDeleteClick(index)} 
+              onClick={() => handleDeleteClick(note.id)} 
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
             >
               Deletar

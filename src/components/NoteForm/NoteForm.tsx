@@ -7,7 +7,7 @@ import LoadingSpinner from '../LoadingSpinner/LoadingSpinner'; // Importa o comp
 
 const NoteForm = ({ addNote }) => {
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false); // Estado para gerenciar o carregamento
 
   const handleSubmit = async (e) => {
@@ -19,16 +19,13 @@ const NoteForm = ({ addNote }) => {
 
     addNote({
       title,
-      description,
+      content,
       date: new Date().toLocaleString()
     });
 
     setTitle('');
-    setDescription('');
-    toast({
-        title: "Tarefa Adicionada com sucesso",
-        description: title,
-    });
+    setContent('');
+
 
     setIsSubmitting(false); // Desativa o estado de carregamento
   };
@@ -48,8 +45,8 @@ const NoteForm = ({ addNote }) => {
       <div>
         <label className="block text-xl font-medium text-white">Descrição</label>
         <textarea 
-          value={description} 
-          onChange={(e) => setDescription(e.target.value)} 
+          value={content} 
+          onChange={(e) => setContent(e.target.value)} 
           required 
           className="mt-1 block w-full px-3 py-2 rounded-md bg-white focus:ring-primary focus:border-primary"
         ></textarea>
@@ -63,7 +60,7 @@ const NoteForm = ({ addNote }) => {
       </button>
 
       
-      <Toaster/>
+      {/* <Toaster/> */}
     </form>
   );
 };
