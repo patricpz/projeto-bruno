@@ -3,10 +3,11 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import { Pencil1Icon } from '@radix-ui/react-icons';
 import React, { useState, useEffect } from 'react';
+import { create, update } from '@/requests/notes';
 
 const NoteModal = ({ note, isOpen, close, onSave }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [editedNote, setEditedNote] = useState({ title: '', content: '', date: '' });
+  const [editedNote, setEditedNote] = useState({ title: '', content: '' });
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -31,8 +32,13 @@ const NoteModal = ({ note, isOpen, close, onSave }) => {
     });
   };
 
-  const handleSave = () => {
-    onSave(editedNote);
+  const handleSave = async () => {
+    // onSave(editedNote);
+    const {id} = note;
+    const {title, content} = editedNote;
+    // @ts-ignore
+    const updatedNote = await update({id, title, content})
+    console.log('updatedNote', updatedNote)
     setIsEditing(false); // Retorna ao estado normal após salvar
     close();
   };
@@ -88,7 +94,7 @@ const NoteModal = ({ note, isOpen, close, onSave }) => {
                 note.content
               )}
             </Dialog.Description>
-            <p className="mt-2 text-sm text-gray-500">
+            {/* <p className="mt-2 text-sm text-gray-500">
               {isEditing ? (
                 <input
                   type="text"
@@ -100,7 +106,7 @@ const NoteModal = ({ note, isOpen, close, onSave }) => {
               ) : (
                 note.date
               )}
-            </p>
+            </p> */}
             {isEditing && (
               <div className="mt-4 flex justify-end space-x-2">
                 <button onClick={close} className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
